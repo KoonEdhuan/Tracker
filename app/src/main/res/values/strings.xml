@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Tracker</string>
+    <string name="tracker">Tracker</string>
+    <string name="cancel_run">Cancel Run</string>
+    <string name="your_runs">Your Runs</string>
+    <string name="statistics">Statistics</string>
+    <string name="setting">Setting</string>
+</resources>
