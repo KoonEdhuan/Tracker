@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.round
 
 /**
  * A simple [Fragment] subclass.
@@ -188,6 +189,16 @@ class TrackingFragment : Fragment() {
             ))
         } else{
             Toast.makeText(context,"pathPoints is empty for camera", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun endRunAndSaveToDb() {
+        map?.snapshot { bitmap ->
+            var distanceInMeters = 0
+            for (polyline in pathPoints){
+                distanceInMeters += TrackingUtility.calculatePolylineLength(polyline).toInt()
+            }
+            val avgSpeed = round((distanceInMeters / 1000f) / (currentTimeInMillis /1000f / 60 / 60)* 10) / 10f
         }
     }
 
