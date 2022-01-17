@@ -26,6 +26,8 @@ import com.example.tracker.ui.viewmodels.MainViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -158,6 +160,24 @@ class TrackingFragment : Fragment() {
             menu?.getItem(0)?.isVisible = true
             binding.btnFinishRun.visibility = View.GONE
         }
+    }
+
+    private fun zoomToSeeWholeTrack() {
+        val bounds = LatLngBounds.Builder()
+        for (polyline in pathPoints){
+            for (position in polyline){
+                bounds.include(position)
+            }
+        }
+        map?.moveCamera(
+            CameraUpdateFactory.newLatLngBounds(
+                bounds.build(),
+                binding.mapView.width,
+                binding.mapView.height,
+                (binding.mapView.height * 0.05f).toInt()
+            )
+
+        )
     }
 
     private fun moveCameraToUser(){
