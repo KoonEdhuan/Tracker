@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.tracker.R
 import com.example.tracker.databinding.FragmentTrackingBinding
+import com.example.tracker.db.Run
 import com.example.tracker.others.Constants
 import com.example.tracker.others.Constants.ACTION_PAUSE_SERVICE
 import com.example.tracker.others.Constants.ACTION_START_OR_RESUME_SERVICE
@@ -30,7 +31,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
+import java.util.*
 import kotlin.math.round
 
 /**
@@ -53,6 +57,8 @@ class TrackingFragment : Fragment() {
 
     private var menu: Menu? = null
 
+    private var weight = 80f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -74,6 +80,11 @@ class TrackingFragment : Fragment() {
 
         binding.btnToggleRun.setOnClickListener {
             toggleRun()
+        }
+
+        binding.btnFinishRun.setOnClickListener {
+            zoomToSeeWholeTrack()
+            endRunAndSaveToDb()
         }
 
         binding.mapView.getMapAsync{
@@ -199,6 +210,18 @@ class TrackingFragment : Fragment() {
                 distanceInMeters += TrackingUtility.calculatePolylineLength(polyline).toInt()
             }
             val avgSpeed = round((distanceInMeters / 1000f) / (currentTimeInMillis /1000f / 60 / 60)* 10) / 10f
+            val dateTimeStamp = Calendar.getInstance().timeInMillis
+            val caloriesBurned = ((distanceInMeters / 1000f) * weight).toInt()
+
+            val run = Run(bitmap,dateTimeStamp,avgSpeed,distanceInMeters,currentTimeInMillis,caloriesBurned)
+            viewModel.insertRun(run)
+            Timber.d("Run info: $run")
+            Snackbar.make(
+                requireActivity().findViewById(R.id.rootView),
+            "Run saved successfully",
+            Snackbar.LENGTH_LONG
+            ).show()
+            stopRun()
         }
     }
 
